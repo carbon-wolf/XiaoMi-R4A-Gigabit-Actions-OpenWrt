@@ -125,24 +125,6 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: Setup sshx session
-      run: |
-        # 定义清理函数，当接收到 TERM/INT 信号时执行
-        cleanup() {
-          echo "Cleaning up..."
-          killall sleep 2>/dev/null
-          exit 0
-        }
-
-        trap cleanup TERM INT
-
-        curl -sSf https://sshx.io/get | sh -s run &
-        sshx_pid=$!
-
-        wait $sshx_pid
-
-        cleanup
-
     - name: Download package
       id: package
       run: |
