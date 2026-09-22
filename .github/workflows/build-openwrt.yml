@@ -125,12 +125,23 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    - name: Setup sshx session
+      run: |
+        # 定义清理函数，当接收到 TERM/INT 信号时执行
+        cleanup() {
+          echo "Cleaning up..."
+          killall sleep 2>/dev/null
+          exit 0
+        }
+
+        trap cleanup TERM INT
+
+        curl -sSf https://sshx.io/get | sh -s run &
+        sshx_pid=$!
+
+        wait $sshx_pid
+
+        cleanup
 
     - name: Download package
       id: package
